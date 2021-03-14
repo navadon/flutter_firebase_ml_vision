@@ -48,7 +48,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _imageUrl = "https://picsum.photos/id/453/300"; 
+    // TODO: Add image URL
+    _imageUrl = "..."; 
     _image = Image.network(_imageUrl);
   }
 
@@ -57,20 +58,22 @@ class _MyHomePageState extends State<MyHomePage> {
       _scanResults = null;
     });
 
+    // Prepare local file from image URL
     final File imageFile = await _fileFromImageUrl(_imageUrl);
+
+    // Decode image and get image size (image size will be used when painting)
     var decodedImage = await decodeImageFromList(imageFile.readAsBytesSync());
-    
     setState(() {
       _imageSize = Size(decodedImage.width.toDouble(), decodedImage.height.toDouble());
     });
 
+    // Prepare vision image and process with face detector
     final FirebaseVisionImage visionImage = FirebaseVisionImage.fromFile(imageFile);
-
     List<Face> faces = await _faceDetector.processImage(visionImage);
     _faceDetector.close();
   
     setState(() {
-      _scanResults = faces;
+      _scanResults = faces;   // Update scan results. Use setState to make sure that build() will be called
     });
   }
 
@@ -82,15 +85,15 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildImage() {
     return Container(
       child: Center(
-        child: _scanResults == null ? 
-          Column( children: <Widget>[
+        child: _scanResults == null ? // if scan result is null, display image and process button
+          Column( children: <Widget>[ 
             _image,
             ElevatedButton(
               onPressed: _scanImage, 
               child: Text("Process"),
             ),
           ], ) 
-          : Column( children: <Widget>[
+          : Column( children: <Widget>[ // if scan result is initialized, display result and text
             _buildResults(_scanResults), 
             Text('Faces found: ${_scanResults.length}'),
           ], )
@@ -105,7 +108,9 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: _image == null ? CircularProgressIndicator() : _buildImage(),
+        child: _image == null ?         // if there is no image loaded (null), display progress indicator 
+        CircularProgressIndicator() 
+        : _buildImage(),                // if image is loaded, display image and process button
       ), 
     );
   }
@@ -127,7 +132,7 @@ class FaceDetectorPainter extends CustomPainter {
       ..strokeWidth = 2.0
       ..color = Colors.red;
 
-    for (final Face face in faces) {
+    for (final Face face in faces) { // draw rectangles for all detected faces
       canvas.drawRect(
         Rect.fromLTRB(
           face.boundingBox.left * scaleX,
@@ -146,7 +151,7 @@ class FaceDetectorPainter extends CustomPainter {
   }
 }
 
-Future<File> _fileFromImageUrl(String imageUrl) async {
+Future<File> _fileFromImageUrl(String imageUrl) async { // convert from image url to local file
     final response = await http.get(Uri.parse(imageUrl));
     print("_fileFromImageUrl: http.get done");
 
