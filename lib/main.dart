@@ -1,8 +1,3 @@
-// References
-// https://firebase.google.com/docs/flutter/setup
-// https://stackoverflow.com/questions/63353484/flutter-network-image-to-file
-// https://github.com/FirebaseExtended/flutterfire/tree/master/packages/firebase_ml_vision/example/lib
-
 import 'dart:io';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
